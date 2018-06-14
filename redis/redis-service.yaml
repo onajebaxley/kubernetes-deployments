@@ -2,7 +2,6 @@ kind: Service
 apiVersion: v1
 metadata:
   name: redis
-  namespace: sandbox
 spec:
   type: "ClusterIP"
   clusterIP: None
@@ -18,13 +17,11 @@ kind: StatefulSet
 apiVersion: apps/v1beta1
 metadata:
   name: redis
-  namespace: sandbox
 spec:
   serviceName: "redis"
   replicas: 1
   template:
     metadata:
-      namespace: sandbox
       labels:
         role: redis
     spec:
