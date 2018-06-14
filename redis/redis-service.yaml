@@ -1,0 +1,64 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: redis
+  namespace: sandbox
+spec:
+  type: "ClusterIP"
+  clusterIP: None
+  selector:
+    role: redis
+  ports:
+    - port: 6379
+      targetPort: 6379
+      name: redis
+      protocol: "TCP"
+---
+kind: StatefulSet
+apiVersion: apps/v1beta1
+metadata:
+  name: redis
+  namespace: sandbox
+spec:
+  serviceName: "redis"
+  replicas: 1
+  template:
+    metadata:
+      namespace: sandbox
+      labels:
+        role: redis
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+        - name: redis
+          image: redis:alpine
+          args: ["--requirepass", "$(REDIS_PASS)",
+                 "--appendonly", "yes",
+                 "--save", "600", "1",
+                 "--save", "30", "3"
+                ]
+          ports:
+            - containerPort: 6379
+              name: redis
+          env:
+            - name: REDIS_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: redis-secrets
+                  key: REDIS_PASS
+          volumeMounts:
+            - name: redis-persistent-storage
+              mountPath: "/data"
+  volumeClaimTemplates:
+  - metadata:
+      name: redis-persistent-storage
+      annotations:
+        volume.beta.kubernetes.io/storage-class: "ebs-gp2"
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 2Gi
+
+
+

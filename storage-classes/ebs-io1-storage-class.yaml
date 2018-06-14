@@ -1,0 +1,13 @@
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: ebs-io1
+  namespace: sandbox
+provisioner: kubernetes.io/aws-ebs
+allowVolumeExpansion: false
+reclaimPolicy: "Delete"
+parameters:
+  type: io1
+  zones: us-east-1a, us-east-1b, us-east-1c, us-east-1d, us-east-1e
+  iopsPerGB: "50"
+  fsType: ext4
