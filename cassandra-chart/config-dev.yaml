@@ -8,9 +8,6 @@
 ## 
 ## Prerequisites: - creation of EBS gp2 StorageClass
 
-# name: "cassandra" # name of release
-# namespace: "cassandra" # kubectl namespace
-# version: "0.4.0" # package version
 image:
     repo: "cassandra"
     tag: "3"
