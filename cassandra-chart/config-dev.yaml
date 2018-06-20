@@ -1,0 +1,53 @@
+## Onaje Baxley 
+## 6/18/18
+## Config for cassandra helm package, set to run at 75% capacity
+## of recommended dev settings.
+#
+## Install command: helm install --namespace cassandra -n cassandra \
+##  -f <this-file> incubator/cassandra
+## 
+## Prerequisites: - creation of EBS gp2 StorageClass
+
+# name: "cassandra" # name of release
+# namespace: "cassandra" # kubectl namespace
+# version: "0.4.0" # package version
+image:
+    repo: "cassandra"
+    tag: "3"
+    pullPolicy: "Always"
+config:
+    cluster_name: "cassandra"
+    cluster_size: 3
+    seed_size: 2
+    # num_tokens: 256
+    # dc_name: "DC1"
+    # rack_name: "RAC1"
+    # endpoint_snitch: "Ec2Snitch"
+    # max_heap_size: "2048M"
+    # heap_new_size: "512M"
+    # start_rpc: false
+    ports:
+        cql: 9042
+        thrift: 9160
+        # agent: None
+persistence:
+    enabled: true
+    storageClass: "ebs-gp2"
+    accessMode: "ReadWriteOnce"
+    size: 12Gi
+resources:
+    requests:
+        memory: 3Gi
+        cpu: 1.5
+    limits:
+        memory: 3Gi
+        cpu: 1.5
+service:
+    type: ClusterIP
+podManagementPolicy: "OrderedReady"
+updateStrategy:
+    type: "RollingUpdate"
+selector:
+    nodeSelector:
+        kops.k8s.io/instancegroup: nodes
+ 
