@@ -1,0 +1,22 @@
+## Onaje Baxley
+## 7/11/18
+##
+## The following Ingress resource represents a mapping which utilizes an 
+## IngressController (in our case Traefik) to route external traffic form the
+## Internet to the cluster service "license-manager"
+
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: license-manager-ingress
+  namespace: oto
+spec:
+  rules:
+    - host: license-manager.oto.analoggarage.com
+      http:
+        paths:
+          - backend:
+              serviceName: license-manager
+              servicePort: 80
+
+

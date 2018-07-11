@@ -1,0 +1,82 @@
+## OB 7/11/18
+#
+## Contains the declarative definitions for the full Otosense License Manager
+## Deployment for Kubernetes, which contains container definitions for both this process and
+## the tangential License Manager API.
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: license_manager
+  labels:
+    name: license_manager
+    app: license-manager
+    role: api
+spec:
+  type: ClusterIP
+  selector:
+    app: license-manager
+    role: api
+  ports:
+    - port: 80
+      targetPort: 3000
+
+---
+
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: license_manager
+  labels:
+    name: license_manager
+    app: license-manager
+spec:
+  minReadySeconds: 5
+  replicas: 1
+  selector:
+    app: license-manager
+  template:
+    metadata:
+      labels:
+        name: license_manager
+        app: license-manager
+        role: api
+    spec:
+      terminationGracePeriodSeconds: 30
+      nodeSelector:
+        kops.k8s.io/instancegroup: nodes
+      restartPolicy: Always
+      containers:
+        - name: api
+          image: 278413356882.dkr.ecr.us-east-1.amazonaws.com/oto/license-manager-api
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+              protocol: TCP
+          env:
+            - NODE_ENV: production
+          livenessProbe:
+            httpGet:
+              path: "/_health"
+              port: 3000
+              scheme: HTTP
+          redinessProbe:
+            httpGet:
+              path: "/_health"
+              port: 3000
+              scheme: HTTP
+          resources:
+            limits:
+              memory: "256Mi"
+              cpu: 0.5
+        - name: process
+          image: 278413356882.dkr.ecr.us-east-1.amazonaws.com/oto/license-manager-proc
+          imagePullPolicy: Always
+          env:
+            - NODE_ENV: production
+          resources:
+            limits:
+              memory: "768Mi"
+              cpu: 0.5
+           
+
